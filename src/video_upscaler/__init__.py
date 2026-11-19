@@ -12,6 +12,17 @@ from video_upscaler.core import (
     VideoInfo,
     VideoProbe,
 )
+from video_upscaler.engines import (
+    BaseEngine,
+    EngineUnavailableError,
+    FFmpegPrecisionEngine,
+    ProgressReporter,
+    RealESRGANEngine,
+    UpscaleConfig,
+    UpscaleError,
+    UpscaleResult,
+    Upscaler,
+)
 
 __version__ = "0.1.0"
 
@@ -27,4 +38,13 @@ __all__ = [
     "TargetResolution",
     "ResolutionCalculator",
     "VideoProbe",
+    "BaseEngine",
+    "EngineUnavailableError",
+    "FFmpegPrecisionEngine",
+    "ProgressReporter",
+    "RealESRGANEngine",
+    "UpscaleConfig",
+    "UpscaleError",
+    "UpscaleResult",
+    "Upscaler",
 ]
