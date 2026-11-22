@@ -1,254 +1,560 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>video-upscaler-cli Documentation</title>
-    <meta name="description" content="High-precision video upscaling CLI and Python library using FFmpeg filter pipelines. Upscale video to 720p, 1080p, 2K, 4K, 8K with surgical precision.">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: #090909;
-            color: #ffffff;
-            line-height: 1.6;
-        }
-        .container { max-width: 1000px; margin: 0 auto; padding: 2rem; }
-        header {
-            background: #111111;
-            border-bottom: 1px solid #ff6a00;
-            padding: 2rem 0;
-            margin-bottom: 2rem;
-        }
-        header h1 { font-size: 2rem; font-weight: 700; letter-spacing: -0.5px; }
-        header h1 span { color: #ff6a00; }
-        header p { color: #7b7b7b; margin-top: 0.5rem; }
-        nav {
-            background: #111111;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 2rem;
-            border: 1px solid #1a1a1a;
-        }
-        nav ul { list-style: none; display: flex; gap: 1rem; flex-wrap: wrap; }
-        nav li a {
-            color: #ff6a00;
-            text-decoration: none;
-            font-weight: 500;
-            padding: 0.5rem 1rem;
-            border: 1px solid #ff6a00;
-            border-radius: 4px;
-            transition: all 0.2s;
-        }
-        nav li a:hover { background: #ff6a00; color: #090909; }
-        h2 {
-            font-size: 1.5rem;
-            margin: 2rem 0 1rem;
-            color: #ff6a00;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid #1a1a1a;
-        }
-        h3 { font-size: 1.2rem; margin: 1.5rem 0 0.5rem; color: #ffffff; }
-        p { margin-bottom: 1rem; color: #e0e0e0; }
-        code {
-            background: #1a1a1a;
-            color: #ff6a00;
-            padding: 0.2rem 0.4rem;
-            border-radius: 4px;
-            font-family: 'Monaco', 'Consolas', monospace;
-            font-size: 0.9em;
-        }
-        pre {
-            background: #111111;
-            border: 1px solid #1a1a1a;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            overflow-x: auto;
-        }
-        pre code { background: transparent; color: #e0e0e0; padding: 0; font-size: inherit; }
-        .card {
-            background: #111111;
-            border: 1px solid #1a1a1a;
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-        .card h3 { color: #ff6a00; margin-top: 0; }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 1rem;
-        }
-        th, td {
-            border: 1px solid #1a1a1a;
-            padding: 0.75rem;
-            text-align: left;
-            color: #e0e0e0;
-        }
-        th { background: #1a1a1a; color: #ff6a00; font-weight: 600; }
-        .prompt-box {
-            background: #1a1a1a;
-            border-left: 4px solid #ff6a00;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            border-radius: 0 8px 8px 0;
-        }
-        .prompt-box h4 { color: #ff6a00; margin: 0 0 0.5rem; }
-        .prompt-box pre { margin: 0; }
-        .agent-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-        .agent-card {
-            background: #111111;
-            border: 1px solid #1a1a1a;
-            border-radius: 8px;
-            padding: 1.5rem;
-        }
-        .agent-card h4 { color: #ff6a00; margin-bottom: 0.5rem; }
-        .agent-card p { color: #a0a0a0; font-size: 0.9rem; margin-bottom: 1rem; }
-        .agent-card code { color: #ffffff; }
-        .install-card {
-            background: linear-gradient(135deg, #111111 0%, #1a1a1a 100%);
-            border: 1px solid #ff6a00;
-            border-radius: 8px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-        }
-        .install-card h2 { color: #ffffff; margin-top: 0; }
-        .badge {
-            display: inline-block;
-            background: #ff6a00;
-            color: #090909;
-            padding: 0.2rem 0.6rem;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            margin-right: 0.5rem;
-        }
-        .architecture {
-            background: #111111;
-            border: 1px solid #1a1a1a;
-            border-radius: 8px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-        }
-        .arch-step {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1rem;
-            align-items: center;
-        }
-        .arch-number {
-            background: #ff6a00;
-            color: #090909;
-            width: 2rem;
-            height: 2rem;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            flex-shrink: 0;
-        }
-        footer {
-            margin-top: 3rem;
-            padding: 2rem 0;
-            border-top: 1px solid #1a1a1a;
-            color: #7b7b7b;
-            font-size: 0.9rem;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>video-upscaler-cli Documentation</title>
+<meta name="description" content="High-precision video upscaling CLI and Python library using FFmpeg filter pipelines. Upscale video to 720p, 1080p, 2K, 4K, 8K with surgical precision.">
+<style>
+/* Design Tokens */
+:root {
+  --bg: #090909;
+  --surface: #111111;
+  --surface-hover: #1a1a1a;
+  --border: #1a1a1a;
+  --accent: #ff6a00;
+  --accent-hover: #e55a00;
+  --text: #ffffff;
+  --text-muted: #7b7b7b;
+  --text-dim: #4d4d4d;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --space-xs: 0.5rem;
+  --space-sm: 1rem;
+  --space-md: 1.5rem;
+  --space-lg: 2rem;
+  --space-xl: 3rem;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.5);
+  --shadow-lg: 0 20px 40px rgba(0,0,0,0.6);
+  --glass: rgba(255,255,255,0.03);
+  --glass-border: rgba(255,255,255,0.08);
+  --transition: 0.25s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* Reset & Base */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* Skip link */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 2rem;
+  z-index: 9999;
+}
+
+/* Background gradient mesh */
+.bg-mesh {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(circle at 10% 20%, rgba(255,106,0,0.12) 0%, transparent 35%),
+              radial-gradient(circle at 90% 80%, rgba(255,106,0,0.06) 0%, transparent 40%);
+  pointer-events: none;
+}
+
+/* Header / Hero */
+.site-header {
+  position: relative;
+  padding: var(--space-xl) 0;
+  overflow: hidden;
+}
+.hero-content {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+.site-header h1 {
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-sm);
+  line-height: 1.1;
+}
+.site-header h1 .accent { color: var(--accent); }
+.site-header .tagline {
+  font-size: clamp(1rem, 1.5vw, 1.25rem);
+  color: var(--text-muted);
+  margin-bottom: var(--space-lg);
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.hero-badges {
+  display: flex;
+  gap: var(--space-sm);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  color: var(--text);
+  text-decoration: none;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: var(--transition);
+}
+.badge:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
+.badge.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 12px var(--accent); }
+
+/* Container */
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 var(--space-lg);
+}
+
+/* Navigation */
+.site-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(9,9,9,0.8);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-inner {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: var(--space-sm) var(--space-lg);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+.nav-brand {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.nav-brand .dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 10px var(--accent); }
+.nav-links {
+  display: flex;
+  gap: var(--space-sm);
+  list-style: none;
+}
+.nav-links a {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.875rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
+}
+.nav-links a:hover { color: var(--accent); background: var(--glass); }
+
+/* Section Headings */
+.section {
+  padding: var(--space-xl) 0;
+}
+.section-title {
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  font-weight: 700;
+  margin-bottom: var(--space-md);
+  letter-spacing: -0.01em;
+}
+.section-subtitle {
+  color: var(--text-muted);
+  font-size: 1rem;
+  margin-bottom: var(--space-lg);
+  max-width: 600px;
+}
+
+/* Bento Grid */
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: auto;
+  gap: var(--space-md);
+}
+.bento-hero { grid-column: span 3; grid-row: span 2; }
+.bento-wide { grid-column: span 2; }
+.bento-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  position: relative;
+  overflow: hidden;
+  transition: var(--transition);
+  display: flex;
+  flex-direction: column;
+}
+.bento-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity: 0.5;
+}
+.bento-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+.bento-card h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: var(--space-sm);
+  color: var(--text);
+}
+.bento-card p {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-bottom: var(--space-md);
+  flex: 1;
+}
+.bento-card code {
+  color: var(--accent);
+  font-size: 0.875rem;
+}
+
+/* Install Card */
+.install-section {
+  background: linear-gradient(135deg, var(--surface) 0%, var(--surface-hover) 100%);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.install-section::after {
+  content: '';
+  position: absolute;
+  top: -50%; right: -20%; width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(255,106,0,0.15) 0%, transparent 60%);
+  pointer-events: none;
+}
+.install-section h2 {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  margin-bottom: var(--space-sm);
+  color: var(--text);
+}
+.install-section p { color: var(--text-muted); margin-bottom: var(--space-lg); }
+.install-code {
+  background: #000;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  font-family: 'Monaco', 'Consolas', monospace;
+  font-size: 0.9rem;
+  color: var(--text);
+  display: inline-block;
+  margin-bottom: var(--space-md);
+  overflow-x: auto;
+}
+
+/* Cards Grid */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-md);
+}
+
+/* Tables */
+.table-wrap {
+  overflow-x: auto;
+  margin-bottom: var(--space-lg);
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+th {
+  background: var(--surface-hover);
+  color: var(--accent);
+  font-weight: 600;
+  text-align: left;
+  padding: var(--space-sm);
+  font-size: 0.85rem;
+  border-bottom: 1px solid var(--border);
+}
+td {
+  padding: var(--space-sm);
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  font-size: 0.9rem;
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--glass); }
+
+/* Code blocks */
+pre {
+  background: #000;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  font-family: 'Monaco', 'Consolas', monospace;
+  font-size: 0.875rem;
+  color: var(--text);
+  overflow-x: auto;
+  margin-bottom: var(--space-lg);
+}
+pre code {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  font-size: inherit;
+}
+
+/* Prompt boxes */
+.prompt-box {
+  background: var(--surface);
+  border-left: 4px solid var(--accent);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  margin-bottom: var(--space-lg);
+  position: relative;
+}
+.prompt-box h4 {
+  color: var(--accent);
+  margin-bottom: var(--space-sm);
+  font-size: 0.95rem;
+}
+.prompt-box pre { margin: 0; }
+
+/* Architecture steps */
+.arch-steps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+.arch-step {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: var(--space-sm);
+  align-items: start;
+  padding: var(--space-md);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  transition: var(--transition);
+}
+.arch-step:hover { border-color: var(--accent); }
+.arch-number {
+  width: 40px; height: 40px;
+  background: var(--accent);
+  color: var(--bg);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+.arch-content h4 { margin-bottom: 0.25rem; font-size: 0.95rem; }
+.arch-content p { margin: 0; font-size: 0.9rem; color: var(--text-muted); }
+
+/* Agent cards */
+.agent-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-md);
+}
+.agent-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  transition: var(--transition);
+}
+.agent-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+.agent-card h4 {
+  color: var(--accent);
+  font-size: 1rem;
+  margin-bottom: var(--space-xs);
+}
+.agent-card p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: var(--space-sm);
+}
+.agent-card code {
+  color: var(--text);
+  font-size: 0.8rem;
+  word-break: break-all;
+}
+
+/* Footer */
+.site-footer {
+  border-top: 1px solid var(--border);
+  padding: var(--space-xl) 0;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .bento-grid { grid-template-columns: 1fr; }
+  .bento-hero { grid-column: span 1; grid-row: auto; }
+  .nav-links { display: none; }
+  .container { padding: 0 var(--space-md); }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+</style>
 </head>
 <body>
 
-<header>
-    <h1><span>video-upscaler-cli</span> Documentation</h1>
-    <p>High-precision video upscaling CLI and Python library using FFmpeg filter pipelines</p>
+<a href="#content" class="skip-link">Skip to content</a>
+<div class="bg-mesh"></div>
+
+<header class="site-header">
+  <div class="hero-content">
+    <div class="hero-badges">
+      <span class="badge"><span class="dot"></span>PyPI</span>
+      <span class="badge"><span class="dot"></span>MIT</span>
+      <span class="badge"><span class="dot"></span>FFmpeg</span>
+      <span class="badge"><span class="dot"></span>Python 3.10+</span>
+    </div>
+    <h1>video-upscaler<span class="accent">-cli</span></h1>
+    <p class="tagline">Surgical video upscaling from 360p to 8K using precision FFmpeg filter pipelines — denoise → lanczos → unsharp → deband.</p>
+  </div>
 </header>
 
-<div class="container">
-    <nav>
-        <ul>
-            <li><a href="#install">Install</a></li>
-            <li><a href="#architecture">Architecture</a></li>
-            <li><a href="#cli">CLI Reference</a></li>
-            <li><a href="#python-api">Python API</a></li>
-            <li><a href="#presets">Presets</a></li>
-            <li><a href="#ai-agents">AI Agent Guide</a></li>
-            <li><a href="#prompts">Agent Prompts</a></li>
-        </ul>
-    </nav>
+<nav class="site-nav">
+  <div class="nav-inner">
+    <a href="#" class="nav-brand"><span class="dot"></span>video-upscaler-cli</a>
+    <ul class="nav-links">
+      <li><a href="#install">Install</a></li>
+      <li><a href="#architecture">Architecture</a></li>
+      <li><a href="#cli">CLI</a></li>
+      <li><a href="#python">Python API</a></li>
+      <li><a href="#presets">Presets</a></li>
+      <li><a href="#agents">AI Agents</a></li>
+    </ul>
+  </div>
+</nav>
 
-    <div class="install-card">
-        <h2><span class="badge">Install</span>Installation</h2>
-        <p>Install from PyPI:</p>
-        <pre><code>pip install video-upscaler-cli</code></pre>
-        <p>Verify installation:</p>
-        <pre><code>video-upscale --help</code></pre>
+<div class="container" id="content">
+
+<section class="section" id="install">
+  <div class="install-section">
+    <h2>Installation</h2>
+    <p>Install from PyPI and verify the CLI is available.</p>
+    <div class="install-code">pip install video-upscaler-cli</div>
+    <div class="install-code">video-upscale --help</div>
+  </div>
+</section>
+
+<section class="section" id="architecture">
+  <h2 class="section-title">Architecture</h2>
+  <p class="section-subtitle">Four-stage pipeline: probe → calculate → filter → encode.</p>
+  <div class="arch-steps">
+    <div class="arch-step">
+      <div class="arch-number">1</div>
+      <div class="arch-content">
+        <h4>Probe</h4>
+        <p>Extracts metadata via ffprobe: resolution, codec, pixel format, duration, FPS, audio codec, aspect ratio, color space. Validates file existence and video stream presence.</p>
+      </div>
     </div>
-
-    <div class="architecture">
-        <h2>Architecture</h2>
-        <p>The system follows a four-stage pipeline: <strong>Probe → Calculate → Filter → Encode</strong>.</p>
-
-        <div class="arch-step">
-            <div class="arch-number">1</div>
-            <div>
-                <strong>Probe</strong> — Extracts media metadata via ffprobe: resolution, codec, pixel format, duration, FPS, audio codec, aspect ratio, color space. Validates file existence and video stream presence.
-            </div>
-        </div>
-        <div class="arch-step">
-            <div class="arch-number">2</div>
-            <div>
-                <strong>Calculate</strong> — Resolution calculator determines target dimensions from preset (720p, 1080p, 2K, 4K, 8K + DCI), fit strategy (fit/pad/crop), scale factor, or custom width/height. Enforces even-integer constraints for chroma subsampling and validates minimum 360p input.
-            </div>
-        </div>
-        <div class="arch-step">
-            <div class="arch-number">3</div>
-            <div>
-                <strong>Filter</strong> — Assembles ffmpeg <code>-vf</code> graph: optional denoise (hqdn3d), lanczos scaling with accurate rounding and full chroma handling, unsharp edge restoration, optional debanding. Parameterized by quality profile and denoise level.
-            </div>
-        </div>
-        <div class="arch-step">
-            <div class="arch-number">4</div>
-            <div>
-                <strong>Encode</strong> — Runs ffmpeg with the filter pipeline, configurable codec (libx264 default), x264 preset/CRF from quality profile, pixel format yuv420p, and audio stream copy. Progress reported by parsing ffmpeg stderr timecodes.
-            </div>
-        </div>
+    <div class="arch-step">
+      <div class="arch-number">2</div>
+      <div class="arch-content">
+        <h4>Calculate</h4>
+        <p>Resolution calculator determines target dimensions from preset, fit strategy (fit/pad/crop), scale factor, or custom width/height. Enforces even-integer constraints for chroma subsampling.</p>
+      </div>
     </div>
-
-    <h2 id="cli">CLI Reference</h2>
-    <div class="card">
-        <h3>Basic Usage</h3>
-        <pre><code>video-upscale input.mp4 -p 4k --quality high --denoise gentle</code></pre>
-        <h3>Options</h3>
-        <table>
-            <thead>
-                <tr><th>Option</th><th>Description</th><th>Default</th></tr>
-            </thead>
-            <tbody>
-                <tr><td><code>-p, --preset</code></td><td>Target resolution: 720p, 1080p, 2k, dci_2k, 4k, dci_4k, 8k, dci_8k, custom</td><td><code>1080p</code></td></tr>
-                <tr><td><code>--fit</code></td><td>Canvas fit strategy: fit, pad, crop</td><td><code>fit</code></td></tr>
-                <tr><td><code>--quality</code></td><td>Encoding quality: fast, medium, high, best</td><td><code>medium</code></td></tr>
-                <tr><td><code>--denoise</code></td><td>Denoise intensity: none, gentle, medium, strong</td><td><code>gentle</code></td></tr>
-                <tr><td><code>--no-sharpen</code></td><td>Disable unsharp sharpening filter</td><td>enabled</td></tr>
-                <tr><td><code>--deband</code></td><td>Enable debanding filter</td><td>disabled</td></tr>
-                <tr><td><code>--scale N</code></td><td>Scale factor (overrides --preset)</td><td>—</td></tr>
-                <tr><td><code>--width W / --height H</code></td><td>Custom canvas dimensions</td><td>—</td></tr>
-                <tr><td><code>--dci</code></td><td>Use DCI variant for 2K/4K/8K</td><td>disabled</td></tr>
-                <tr><td><code>--allow-low-res</code></td><td>Allow inputs below 360p</td><td>disabled</td></tr>
-                <tr><td><code>-o, --output</code></td><td>Output path</td><td><code>&lt;stem&gt;_&lt;preset&gt;.mp4</code></td></tr>
-            </tbody>
-        </table>
+    <div class="arch-step">
+      <div class="arch-number">3</div>
+      <div class="arch-content">
+        <h4>Filter</h4>
+        <p>Assembles ffmpeg <code>-vf</code> graph: optional denoise (hqdn3d), lanczos scaling with accurate rounding, unsharp edge restoration, optional debanding.</p>
+      </div>
     </div>
+    <div class="arch-step">
+      <div class="arch-number">4</div>
+      <div class="arch-content">
+        <h4>Encode</h4>
+        <p>Runs ffmpeg with the filter pipeline, configurable codec (libx264 default), x264 preset/CRF from quality profile, yuv420p pixel format, and audio stream copy.</p>
+      </div>
+    </div>
+  </div>
+</section>
 
-    <h2 id="python-api">Python API</h2>
-    <div class="card">
-        <pre><code>from video_upscaler import Upscaler, UpscaleConfig, Preset, FitStrategy, QualityProfile, DenoiseLevel
+<section class="section" id="cli">
+  <h2 class="section-title">CLI Reference</h2>
+  <p class="section-subtitle">Command-line interface for video upscaling.</p>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Option</th><th>Description</th><th>Default</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>-p, --preset</code></td><td>Target resolution: 720p, 1080p, 2k, dci_2k, 4k, dci_4k, 8k, dci_8k, custom</td><td><code>1080p</code></td></tr>
+        <tr><td><code>--fit</code></td><td>Canvas fit strategy: fit, pad, crop</td><td><code>fit</code></td></tr>
+        <tr><td><code>--quality</code></td><td>Encoding quality: fast, medium, high, best</td><td><code>medium</code></td></tr>
+        <tr><td><code>--denoise</code></td><td>Denoise intensity: none, gentle, medium, strong</td><td><code>gentle</code></td></tr>
+        <tr><td><code>--no-sharpen</code></td><td>Disable unsharp sharpening filter</td><td>enabled</td></tr>
+        <tr><td><code>--deband</code></td><td>Enable debanding filter</td><td>disabled</td></tr>
+        <tr><td><code>--scale N</code></td><td>Scale factor (overrides --preset)</td><td>—</td></tr>
+        <tr><td><code>--width W / --height H</code></td><td>Custom canvas dimensions</td><td>—</td></tr>
+        <tr><td><code>--dci</code></td><td>Use DCI variant for 2K/4K/8K</td><td>disabled</td></tr>
+        <tr><td><code>--allow-low-res</code></td><td>Allow inputs below 360p</td><td>disabled</td></tr>
+        <tr><td><code>-o, --output</code></td><td>Output path</td><td><code>&lt;stem&gt;_&lt;preset&gt;.mp4</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="cards-grid">
+    <div class="bento-card">
+      <h3>4K Upscale</h3>
+      <p>High quality 4K upscale with gentle denoising.</p>
+      <code>video-upscale input.mp4 -p 4k --quality high --denoise gentle</code>
+    </div>
+    <div class="bento-card">
+      <h3>8K Upscale</h3>
+      <p>8K upscale using fast quality to fit memory constraints.</p>
+      <code>video-upscale input.mp4 -p 8k --quality fast --denoise gentle</code>
+    </div>
+    <div class="bento-card">
+      <h3>Custom 2x Scale</h3>
+      <p>Scale video by 2x with padding fit strategy.</p>
+      <code>video-upscale input.mp4 --scale 2 --fit pad -o output.mp4</code>
+    </div>
+    <div class="bento-card">
+      <h3>DCI 4K</h3>
+      <p>DCI 4K resolution (4096×2160) with DCI flag.</p>
+      <code>video-upscale input.mp4 -p dci_4k --dci</code>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="python">
+  <h2 class="section-title">Python API</h2>
+  <p class="section-subtitle">Programmatic access for AI agents and scripts.</p>
+  <pre><code>from video_upscaler import Upscaler, UpscaleConfig, Preset, FitStrategy, QualityProfile, DenoiseLevel
 
 config = UpscaleConfig(
     preset=Preset.RES_4K,
@@ -265,89 +571,92 @@ result = upscaler.upscale("input.mp4", "output_4k.mp4")
 print(result.output_path)   # Path to output file
 print(result.resolution)    # (width, height) tuple
 print(result.duration)      # Duration in seconds</code></pre>
+</section>
+
+<section class="section" id="presets">
+  <h2 class="section-title">Presets Reference</h2>
+  <p class="section-subtitle">Target resolution presets and DCI variants.</p>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Preset</th><th>Resolution</th><th>DCI Variant (<code>--dci</code>)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>720p</td><td>1280×720</td><td>—</td></tr>
+        <tr><td>1080p</td><td>1920×1080</td><td>—</td></tr>
+        <tr><td>2K</td><td>2560×1440</td><td>2048×1080</td></tr>
+        <tr><td>4K</td><td>3840×2160</td><td>4096×2160</td></tr>
+        <tr><td>8K</td><td>7680×4320</td><td>8192×4320</td></tr>
+        <tr><td>custom</td><td>--scale N or --width/--height</td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="color:var(--text-muted); font-size:0.9rem;"><strong>Note:</strong> 8K at <code>--quality high</code> may exceed memory on machines with &lt;16GB RAM. Use <code>--quality fast</code> for 8K.</p>
+</section>
+
+<section class="section" id="agents">
+  <h2 class="section-title">AI Agent Guide</h2>
+  <p class="section-subtitle">Works with Claude, Codex, Pi, Opencode, Kimi, and other AI coding agents.</p>
+  <div class="agent-grid">
+    <div class="agent-card">
+      <h4>Claude / Claude Code</h4>
+      <p>Use the Python API via direct import or subprocess. Ideal for scripting batch upscale jobs in agent workflows.</p>
+      <code>from video_upscaler import Upscaler, UpscaleConfig, Preset</code>
     </div>
-
-    <h2 id="presets">Presets Reference</h2>
-    <div class="card">
-        <table>
-            <thead>
-                <tr><th>Preset</th><th>Resolution</th><th>DCI Variant (<code>--dci</code>)</th></tr>
-            </thead>
-            <tbody>
-                <tr><td>720p</td><td>1280×720</td><td>—</td></tr>
-                <tr><td>1080p</td><td>1920×1080</td><td>—</td></tr>
-                <tr><td>2K</td><td>2560×1440</td><td>2048×1080</td></tr>
-                <tr><td>4K</td><td>3840×2160</td><td>4096×2160</td></tr>
-                <tr><td>8K</td><td>7680×4320</td><td>8192×4320</td></tr>
-                <tr><td>custom</td><td>--scale N or --width/--height</td><td>—</td></tr>
-            </tbody>
-        </table>
-        <p><strong>Note:</strong> 8K at <code>--quality high</code> may exceed memory on machines with &lt;16GB RAM. Use <code>--quality fast</code> for 8K.</p>
+    <div class="agent-card">
+      <h4>Codex</h4>
+      <p>Call the <code>video-upscale</code> CLI from generated scripts. Parse stdout for resolution and duration results.</p>
+      <code>video-upscale input.mp4 -p 4k --quality high</code>
     </div>
-
-    <h2 id="ai-agents">AI Agent Guide</h2>
-    <p>This package works with Claude, Codex, Pi, Opencode, Kimi, and other AI coding agents. The <code>video_upscaler</code> Python package exposes a clean, typed API that agents can call directly.</p>
-
-    <div class="agent-grid">
-        <div class="agent-card">
-            <h4>Claude / Claude Code</h4>
-            <p>Use the Python API via subprocess or direct import. Ideal for scripting batch upscale jobs in agent workflows.</p>
-            <code>from video_upscaler import Upscaler, UpscaleConfig, Preset</code>
-        </div>
-        <div class="agent-card">
-            <h4>Codex</h4>
-            <p>Call the <code>video-upscale</code> CLI from generated scripts. Parse stdout for resolution and duration results.</p>
-            <code>video-upscale input.mp4 -p 4k --quality high</code>
-        </div>
-        <div class="agent-card">
-            <h4>Pi / Opencode</h4>
-            <p>Integrate into agentic pipelines. The Upscaler returns structured <code>UpscaleResult</code> with output_path, resolution, and duration.</p>
-            <code>result = upscaler.upscale(input, output)</code>
-        </div>
-        <div class="agent-card">
-            <h4>Kimi / Other</h4>
-            <p>Use any LLM to generate Python or shell code that invokes the package. All types are standard library dataclasses and enums.</p>
-            <code>pip install video-upscaler-cli</code>
-        </div>
+    <div class="agent-card">
+      <h4>Pi / Opencode</h4>
+      <p>Integrate into agentic pipelines. The Upscaler returns structured <code>UpscaleResult</code> with output_path, resolution, and duration.</p>
+      <code>result = upscaler.upscale(input, output)</code>
     </div>
+    <div class="agent-card">
+      <h4>Kimi / Other</h4>
+      <p>Use any LLM to generate Python or shell code that invokes the package. All types are standard library dataclasses and enums.</p>
+      <code>pip install video-upscaler-cli</code>
+    </div>
+  </div>
+</section>
 
-    <h2 id="prompts">Agent Prompts</h2>
-    <p>Copy and paste these prompts into your AI agent to install and use <code>video-upscaler-cli</code> efficiently.</p>
-
+<section class="section">
+  <h2 class="section-title">Agent Prompts</h2>
+  <p class="section-subtitle">Copy and paste these prompts into your AI agent to install and use <code>video-upscaler-cli</code> efficiently.</p>
+  <div class="cards-grid">
     <div class="prompt-box">
-        <h4>Install the package</h4>
-        <pre><code>Install video-upscaler-cli from PyPI. Verify the installation by running `video-upscale --help` and confirm the CLI is available.</code></pre>
+      <h4>Install the package</h4>
+      <pre><code>Install video-upscaler-cli from PyPI. Verify the installation by running `video-upscale --help` and confirm the CLI is available.</code></pre>
     </div>
-
     <div class="prompt-box">
-        <h4>Upscale a video to 4K</h4>
-        <pre><code>Use video-upscaler-cli to upscale "input.mp4" to 4K resolution with high quality and gentle denoising. Save the output as "output_4k.mp4". Report the output resolution and duration.</code></pre>
+      <h4>Upscale a video to 4K</h4>
+      <pre><code>Use video-upscaler-cli to upscale "input.mp4" to 4K resolution with high quality and gentle denoising. Save the output as "output_4k.mp4". Report the output resolution and duration.</code></pre>
     </div>
-
     <div class="prompt-box">
-        <h4>Batch upscale multiple videos</h4>
-        <pre><code>Write a Python script using video_upscaler.Upscaler to batch upscale all MP4 files in a directory to 1080p with medium quality. Use FitStrategy.FIT and DenoiseLevel.GENTLE. Print each result's output_path, resolution, and duration.</code></pre>
+      <h4>Batch upscale multiple videos</h4>
+      <pre><code>Write a Python script using video_upscaler.Upscaler to batch upscale all MP4 files in a directory to 1080p with medium quality. Use FitStrategy.FIT and DenoiseLevel.GENTLE. Print each result's output_path, resolution, and duration.</code></pre>
     </div>
-
     <div class="prompt-box">
-        <h4>Upscale to 8K with memory constraints</h4>
-        <pre><code>Upscale "input.mp4" to 8K using video-upscaler-cli with --quality fast to fit within limited memory. Preserve the audio stream. Confirm the output resolution is 7680×4320.</code></pre>
+      <h4>Upscale to 8K with memory constraints</h4>
+      <pre><code>Upscale "input.mp4" to 8K using video-upscaler-cli with --quality fast to fit within limited memory. Preserve the audio stream. Confirm the output resolution is 7680×4320.</code></pre>
     </div>
-
     <div class="prompt-box">
-        <h4>Check video info before upscaling</h4>
-        <pre><code>Use the video_upscaler.VideoProbe to probe "input.mp4" and report the width, height, codec, FPS, duration, and audio codec. Then recommend the best preset for upscaling.</code></pre>
+      <h4>Check video info before upscaling</h4>
+      <pre><code>Use the video_upscaler.VideoProbe to probe "input.mp4" and report the width, height, codec, FPS, duration, and audio codec. Then recommend the best preset for upscaling.</code></pre>
     </div>
-
     <div class="prompt-box">
-        <h4>Custom 2x scale with padding</h4>
-        <pre><code>Use video-upscaler-cli to scale "input.mp4" by 2x with pad fit strategy. Output to "output_2x_padded.mp4". Enable debanding for smooth gradients.</code></pre>
+      <h4>Custom 2x scale with padding</h4>
+      <pre><code>Use video-upscaler-cli to scale "input.mp4" by 2x with pad fit strategy. Output to "output_2x_padded.mp4". Enable debanding for smooth gradients.</code></pre>
     </div>
+  </div>
+</section>
 
-    <footer>
-        <p>video-upscaler-cli · MIT License · <a href="https://github.com/Dream-Pixels-Forge/video-upscaler-cli" style="color: #ff6a00;">GitHub Repository</a></p>
-    </footer>
 </div>
+
+<footer class="site-footer">
+  video-upscaler-cli · MIT License · <a href="https://github.com/Dream-Pixels-Forge/video-upscaler-cli" style="color: var(--accent); text-decoration: none;">GitHub Repository</a>
+</footer>
 
 </body>
 </html>
