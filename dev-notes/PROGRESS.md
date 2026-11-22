@@ -1,7 +1,7 @@
 # Pipeline Progress
 
 ## Current State
-- Project: video-upscaler
+- Project: video-upscaler-cli
 - Started: 2026-11-19
 - Current Phase: Phase 2 (Completed) -> Phase 3 (Engineer)
 - Status: in-progress

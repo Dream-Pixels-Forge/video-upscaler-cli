@@ -12,6 +12,10 @@ class Preset(str, Enum):
     RES_1080P = "1080p"
     RES_2K = "2k"
     RES_DCI_2K = "dci_2k"
+    RES_4K = "4k"
+    RES_DCI_4K = "dci_4k"
+    RES_8K = "8k"
+    RES_DCI_8K = "dci_8k"
     CUSTOM = "custom"
 
     @classmethod

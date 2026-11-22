@@ -1,7 +1,7 @@
 # Brainstorm: Video Upscaler Tool
 
 ## 1. Executive Summary
-A production-grade, highly precise CLI and Python library (`video-upscaler`) designed to upscale videos from low resolutions (minimum 360p) up to 720p, 1080p, and 2K (2560x1440 or 2048x1080) with maximum accuracy, clarity, and temporal consistency.
+A production-grade, highly precise CLI and Python library (`video-upscaler-cli`) designed to upscale videos from low resolutions (minimum 360p) up to 720p, 1080p, and 2K (2560x1440 or 2048x1080) with maximum accuracy, clarity, and temporal consistency.
 
 ## 2. Problem Statement
 Upscaling low-resolution video (360p, 480p) to 720p, 1080p, or 2K often introduces:

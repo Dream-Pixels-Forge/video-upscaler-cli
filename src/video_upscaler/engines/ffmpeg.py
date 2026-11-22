@@ -88,7 +88,11 @@ class FFmpegPrecisionEngine(BaseEngine):
             source_h=info.height,
             preset=self.config.preset,
             fit_strategy=self.config.fit,
+            custom_w=self.config.custom_w,
+            custom_h=self.config.custom_h,
+            scale_factor=self.config.scale_factor,
             allow_low_res=self.config.allow_low_res,
+            dci=self.config.dci,
         )
         chain_fn = self._filter_chain_fn or _default_filter_chain_fn
         chain = chain_fn(

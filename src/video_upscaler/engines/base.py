@@ -28,6 +28,10 @@ class UpscaleConfig:
     deband: bool = False
     codec: str = "libx264"
     allow_low_res: bool = False
+    scale_factor: Optional[float] = None
+    custom_w: Optional[int] = None
+    custom_h: Optional[int] = None
+    dci: bool = False
 
 
 @dataclass
