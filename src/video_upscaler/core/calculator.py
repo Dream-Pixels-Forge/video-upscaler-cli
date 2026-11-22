@@ -107,6 +107,20 @@ class ResolutionCalculator:
                     canvas_w, canvas_h = (1440, 2560) if is_vertical else (2560, 1440)
             elif preset == Preset.RES_DCI_2K:
                 canvas_w, canvas_h = (1080, 2048) if is_vertical else (2048, 1080)
+            elif preset == Preset.RES_4K:
+                if dci:
+                    canvas_w, canvas_h = (2160, 4096) if is_vertical else (4096, 2160)
+                else:
+                    canvas_w, canvas_h = (2160, 3840) if is_vertical else (3840, 2160)
+            elif preset == Preset.RES_DCI_4K:
+                canvas_w, canvas_h = (2160, 4096) if is_vertical else (4096, 2160)
+            elif preset == Preset.RES_8K:
+                if dci:
+                    canvas_w, canvas_h = (4320, 8192) if is_vertical else (8192, 4320)
+                else:
+                    canvas_w, canvas_h = (4320, 7680) if is_vertical else (7680, 4320)
+            elif preset == Preset.RES_DCI_8K:
+                canvas_w, canvas_h = (4320, 8192) if is_vertical else (8192, 4320)
             elif preset == Preset.CUSTOM:
                 raise ValueError("Preset.CUSTOM requires explicit custom_w and custom_h or scale_factor")
             else:

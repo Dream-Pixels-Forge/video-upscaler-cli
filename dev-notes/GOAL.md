@@ -1,7 +1,7 @@
 # GOAL: Video Upscaler Tool
 
 ## Target State
-Deliver a robust, tested, and reliable video upscaler CLI and library (`video-upscaler`) capable of upscaling video from minimum 360p up to 720p, 1080p, and 2K (2560x1440 / 2048x1080) with high accuracy, detail preservation, artifact mitigation, and strict temporal consistency.
+Deliver a robust, tested, and reliable video upscaler CLI and library (`video-upscaler-cli`) capable of upscaling video from minimum 360p up to 720p, 1080p, and 2K (2560x1440 / 2048x1080) with high accuracy, detail preservation, artifact mitigation, and strict temporal consistency.
 
 ## Deliverables
 1. Python package `video_upscaler` with clean modular architecture:

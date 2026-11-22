@@ -7,6 +7,8 @@
   - `720p`: Target height 720 (standard 1280x720 for 16:9, or calculated width preserving aspect ratio, even integers).
   - `1080p`: Target height 1080 (standard 1920x1080 for 16:9, or calculated width preserving aspect ratio, even integers).
   - `2k`: Target height 1440 (QHD 2560x1440 for 16:9, or DCI 2K 2048x1080 if specified with `--dci`, or target height 1440 preserving AR).
+  - `4k`: Target height 2160 (UHD 3840x2160 for 16:9, or DCI 4K 4096x2160 if specified with `--dci`).
+  - `8k`: Target height 4320 (UHD 7680x4320 for 16:9, or DCI 8K 8192x4320 if specified with `--dci`).
   - `custom`: Explicit `--scale 2x`, or explicit `--width W --height H`.
 
 ## 2. Fit and Canvas Strategies
