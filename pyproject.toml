@@ -4,22 +4,54 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "video-upscaler-cli"
-version = "0.1.1"
-description = "High-precision video upscaler CLI and library using FFmpeg filter pipelines"
+version = "0.1.2"
+description = "High-precision video upscaling CLI and Python library using FFmpeg filter pipelines."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [
     { name = "Dream-Pixels-Forge" }
 ]
+keywords = [
+    "video",
+    "upscale",
+    "upscaling",
+    "ffmpeg",
+    "4k",
+    "8k",
+    "2k",
+    "video-processing",
+    "cli",
+]
 classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Topic :: Multimedia :: Video",
     "Topic :: Multimedia :: Video :: Conversion",
+    "Topic :: Multimedia :: Video :: Non-Linear Editor",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
 ]
 dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/Dream-Pixels-Forge/video-upscaler-cli"
+Documentation = "https://dream-pixels-forge.github.io/video-upscaler-cli/"
+Repository = "https://github.com/Dream-Pixels-Forge/video-upscaler-cli"
+Issues = "https://github.com/Dream-Pixels-Forge/video-upscaler-cli/issues"
+Changelog = "https://github.com/Dream-Pixels-Forge/video-upscaler-cli/releases"
 
 [project.scripts]
 video-upscale = "video_upscaler.cli:main"
