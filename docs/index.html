@@ -3,363 +3,295 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>video-upscaler-cli Documentation</title>
-<meta name="description" content="High-precision video upscaling CLI and Python library using FFmpeg filter pipelines. Upscale video to 720p, 1080p, 2K, 4K, 8K with surgical precision.">
+<title>video-upscaler-cli — Surgical video upscaling to 8K</title>
+<meta name="description" content="High-precision video upscaling CLI and Python library using FFmpeg filter pipelines. Upscale video from 360p to 8K with denoise, lanczos scale, unsharp sharpen, and deband.">
 <style>
-/* Design Tokens */
+/* DPF Design System — Dream-Pixels-Forge Visual System */
 :root {
-  --bg: #090909;
-  --surface: #111111;
-  --surface-hover: #1a1a1a;
-  --border: #1a1a1a;
+  /* Base background — deep neutral charcoal, not flat black */
+  --bg: #0d0d0d;
+  --bg-surface: #101010;
+  --surface: #171717;
+  --surface-lift: #202020;
+  --border: #303030;
+
+  /* Signature accent — ownable orange, used deliberately */
   --accent: #ff6a00;
-  --accent-hover: #e55a00;
-  --text: #ffffff;
+  --accent-dim: #b34a00;
+
+  /* Text */
+  --text-primary: #f5f5f3;
+  --text-secondary: #a3a3a3;
   --text-muted: #7b7b7b;
-  --text-dim: #4d4d4d;
+
+  /* Typography */
+  --font-display: "Space Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-body: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: "DM Mono", "Monaco", "Consolas", monospace;
+
   --radius-sm: 6px;
   --radius-md: 10px;
-  --radius-lg: 16px;
   --space-xs: 0.5rem;
   --space-sm: 1rem;
   --space-md: 1.5rem;
   --space-lg: 2rem;
   --space-xl: 3rem;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.5);
-  --shadow-lg: 0 20px 40px rgba(0,0,0,0.6);
-  --glass: rgba(255,255,255,0.03);
-  --glass-border: rgba(255,255,255,0.08);
-  --transition: 0.25s cubic-bezier(0.23, 1, 0.32, 1);
+  --transition: 0.2s ease;
 }
 
-/* Reset & Base */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: smooth; }
+
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  font-family: var(--font-body);
   background: var(--bg);
-  color: var(--text);
+  color: var(--text-primary);
   line-height: 1.6;
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Skip link */
 .skip-link {
   position: absolute;
   left: -9999px;
-  top: 2rem;
-  z-index: 9999;
-}
-
-/* Background gradient mesh */
-.bg-mesh {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  background: radial-gradient(circle at 10% 20%, rgba(255,106,0,0.12) 0%, transparent 35%),
-              radial-gradient(circle at 90% 80%, rgba(255,106,0,0.06) 0%, transparent 40%);
-  pointer-events: none;
-}
-
-/* Header / Hero */
-.site-header {
-  position: relative;
-  padding: var(--space-xl) 0;
-  overflow: hidden;
-}
-.hero-content {
-  max-width: 800px;
-  margin: 0 auto;
-  text-align: center;
-  position: relative;
-  z-index: 1;
-}
-.site-header h1 {
-  font-size: clamp(2.5rem, 6vw, 4rem);
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  margin-bottom: var(--space-sm);
-  line-height: 1.1;
-}
-.site-header h1 .accent { color: var(--accent); }
-.site-header .tagline {
-  font-size: clamp(1rem, 1.5vw, 1.25rem);
-  color: var(--text-muted);
-  margin-bottom: var(--space-lg);
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
-}
-.hero-badges {
-  display: flex;
-  gap: var(--space-sm);
-  justify-content: center;
-  flex-wrap: wrap;
-}
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background: var(--glass);
-  border: 1px solid var(--glass-border);
-  color: var(--text);
+  top: var(--space-md);
+  z-index: 10000;
+  background: var(--accent);
+  color: var(--bg);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  font-weight: 600;
   text-decoration: none;
-  border-radius: var(--radius-md);
-  font-size: 0.875rem;
-  font-weight: 500;
-  transition: var(--transition);
-}
-.badge:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
-.badge.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 12px var(--accent); }
-
-/* Container */
-.container {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 0 var(--space-lg);
 }
 
-/* Navigation */
-.site-nav {
+/* ===== Navigation ===== */
+.navbar {
   position: sticky;
   top: 0;
-  z-index: 100;
-  background: rgba(9,9,9,0.8);
-  backdrop-filter: blur(12px);
+  z-index: 50;
+  background: rgba(13, 13, 13, 0.85);
+  backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border);
 }
-.nav-inner {
+
+.navbar-inner {
   max-width: 1000px;
   margin: 0 auto;
   padding: var(--space-sm) var(--space-lg);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
   gap: var(--space-sm);
+  flex-wrap: wrap;
 }
+
 .nav-brand {
+  font-family: var(--font-display);
   font-weight: 700;
-  font-size: 1rem;
-  color: var(--text);
+  font-size: 1.125rem;
+  color: var(--text-primary);
   text-decoration: none;
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
-.nav-brand .dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 10px var(--accent); }
+
+.nav-brand .dot {
+  width: 7px;
+  height: 7px;
+  background: var(--accent);
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--accent);
+}
+
 .nav-links {
   display: flex;
-  gap: var(--space-sm);
+  gap: var(--space-xs);
   list-style: none;
 }
+
 .nav-links a {
-  color: var(--text-muted);
+  color: var(--text-secondary);
   text-decoration: none;
   font-size: 0.875rem;
-  padding: 0.4rem 0.8rem;
+  padding: 0.35rem 0.75rem;
   border-radius: var(--radius-sm);
   transition: var(--transition);
+  border: 1px solid transparent;
 }
-.nav-links a:hover { color: var(--accent); background: var(--glass); }
 
-/* Section Headings */
+.nav-links a:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: rgba(255, 106, 0, 0.05);
+}
+
+/* ===== Hero ===== */
+.hero {
+  padding: var(--space-xl) 0 var(--space-2xl);
+  text-align: center;
+  position: relative;
+}
+
+.hero > * {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--accent);
+  text-decoration: none;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: var(--space-md);
+  transition: var(--transition);
+}
+
+.hero-badge:hover {
+  border-color: var(--accent);
+  color: var(--text-primary);
+  transform: translateY(-2px);
+}
+
+.hero-badge .dot {
+  width: 6px;
+  height: 6px;
+  background: var(--accent);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--accent);
+}
+
+.hero h1 {
+  font-family: var(--font-display);
+  font-size: clamp(2.25rem, 6vw, 3.5rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-sm);
+  color: var(--text-primary);
+}
+
+.hero h1 .accent {
+  color: var(--accent);
+}
+
+.hero p {
+  font-size: clamp(1rem, 1.5vw, 1.25rem);
+  color: var(--text-secondary);
+  max-width: 650px;
+  margin: 0 auto var(--space-lg);
+  line-height: 1.7;
+}
+
+/* ===== Container & Sections ===== */
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 var(--space-lg);
+}
+
 .section {
   padding: var(--space-xl) 0;
 }
+
 .section-title {
-  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3vw, 2rem);
   font-weight: 700;
-  margin-bottom: var(--space-md);
+  margin-bottom: var(--space-sm);
+  color: var(--text-primary);
   letter-spacing: -0.01em;
 }
+
 .section-subtitle {
   color: var(--text-muted);
-  font-size: 1rem;
+  font-size: 0.95rem;
   margin-bottom: var(--space-lg);
   max-width: 600px;
 }
 
-/* Bento Grid */
-.bento-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-auto-rows: auto;
-  gap: var(--space-md);
-}
-.bento-hero { grid-column: span 3; grid-row: span 2; }
-.bento-wide { grid-column: span 2; }
-.bento-card {
+/* ===== Install Section ===== */
+.install-panel {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   padding: var(--space-lg);
-  position: relative;
-  overflow: hidden;
-  transition: var(--transition);
-  display: flex;
-  flex-direction: column;
-}
-.bento-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0; height: 1px;
-  background: linear-gradient(90deg, transparent, var(--accent), transparent);
-  opacity: 0.5;
-}
-.bento-card:hover {
-  border-color: var(--accent);
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
-}
-.bento-card h3 {
-  font-size: 1.125rem;
-  font-weight: 600;
-  margin-bottom: var(--space-sm);
-  color: var(--text);
-}
-.bento-card p {
-  color: var(--text-muted);
-  font-size: 0.9rem;
-  margin-bottom: var(--space-md);
-  flex: 1;
-}
-.bento-card code {
-  color: var(--accent);
-  font-size: 0.875rem;
-}
-
-/* Install Card */
-.install-section {
-  background: linear-gradient(135deg, var(--surface) 0%, var(--surface-hover) 100%);
-  border: 1px solid var(--accent);
-  border-radius: var(--radius-lg);
-  padding: var(--space-xl);
+  margin-bottom: var(--space-xl);
   text-align: center;
   position: relative;
   overflow: hidden;
 }
-.install-section::after {
-  content: '';
+
+.install-panel::before {
+  content: "";
   position: absolute;
-  top: -50%; right: -20%; width: 300px; height: 300px;
-  background: radial-gradient(circle, rgba(255,106,0,0.15) 0%, transparent 60%);
-  pointer-events: none;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity: 0.6;
 }
-.install-section h2 {
-  font-size: clamp(1.5rem, 3vw, 2rem);
+
+.install-panel h2 {
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 2.5vw, 1.75rem);
   margin-bottom: var(--space-sm);
-  color: var(--text);
+  color: var(--text-primary);
 }
-.install-section p { color: var(--text-muted); margin-bottom: var(--space-lg); }
-.install-code {
-  background: #000;
+
+.install-panel p {
+  color: var(--text-secondary);
+  margin-bottom: var(--space-md);
+  font-size: 0.95rem;
+}
+
+.cmd-block {
+  background: #0a0a0a;
   border: 1px solid var(--border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   padding: var(--space-md);
-  font-family: 'Monaco', 'Consolas', monospace;
+  font-family: var(--font-mono);
   font-size: 0.9rem;
-  color: var(--text);
+  color: var(--text-primary);
   display: inline-block;
   margin-bottom: var(--space-md);
   overflow-x: auto;
 }
 
-/* Cards Grid */
-.cards-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: var(--space-md);
-}
-
-/* Tables */
-.table-wrap {
-  overflow-x: auto;
-  margin-bottom: var(--space-lg);
-}
-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-}
-th {
-  background: var(--surface-hover);
-  color: var(--accent);
-  font-weight: 600;
-  text-align: left;
-  padding: var(--space-sm);
-  font-size: 0.85rem;
-  border-bottom: 1px solid var(--border);
-}
-td {
-  padding: var(--space-sm);
-  border-bottom: 1px solid var(--border);
-  color: var(--text);
-  font-size: 0.9rem;
-}
-tr:last-child td { border-bottom: none; }
-tr:hover td { background: var(--glass); }
-
-/* Code blocks */
-pre {
-  background: #000;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: var(--space-md);
-  font-family: 'Monaco', 'Consolas', monospace;
-  font-size: 0.875rem;
-  color: var(--text);
-  overflow-x: auto;
-  margin-bottom: var(--space-lg);
-}
-pre code {
-  background: transparent;
-  padding: 0;
-  color: inherit;
-  font-size: inherit;
-}
-
-/* Prompt boxes */
-.prompt-box {
-  background: var(--surface);
-  border-left: 4px solid var(--accent);
-  border-radius: var(--radius-md);
-  padding: var(--space-md);
-  margin-bottom: var(--space-lg);
-  position: relative;
-}
-.prompt-box h4 {
-  color: var(--accent);
-  margin-bottom: var(--space-sm);
-  font-size: 0.95rem;
-}
-.prompt-box pre { margin: 0; }
-
-/* Architecture steps */
+/* ===== Architecture ===== */
 .arch-steps {
   display: flex;
   flex-direction: column;
   gap: var(--space-sm);
 }
+
 .arch-step {
   display: grid;
-  grid-template-columns: 40px 1fr;
+  grid-template-columns: 44px 1fr;
   gap: var(--space-sm);
-  align-items: start;
+  align-items: flex-start;
   padding: var(--space-md);
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   transition: var(--transition);
 }
-.arch-step:hover { border-color: var(--accent); }
+
+.arch-step:hover {
+  border-color: var(--accent);
+}
+
 .arch-number {
-  width: 40px; height: 40px;
+  width: 44px;
+  height: 44px;
   background: var(--accent);
   color: var(--bg);
   border-radius: 50%;
@@ -370,40 +302,134 @@ pre code {
   font-size: 1rem;
   flex-shrink: 0;
 }
-.arch-content h4 { margin-bottom: 0.25rem; font-size: 0.95rem; }
-.arch-content p { margin: 0; font-size: 0.9rem; color: var(--text-muted); }
 
-/* Agent cards */
-.agent-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: var(--space-md);
+.arch-content h4 {
+  margin-bottom: 0.25rem;
+  font-size: 0.95rem;
+  color: var(--text-primary);
 }
-.agent-card {
+
+.arch-content p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+/* ===== CLI Reference ===== */
+.table-wrap {
+  overflow-x: auto;
+  margin-bottom: var(--space-lg);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+th {
+  background: var(--surface-lift);
+  color: var(--accent);
+  font-weight: 600;
+  text-align: left;
+  padding: var(--space-sm);
+  font-size: 0.85rem;
+  border-bottom: 1px solid var(--border);
+}
+
+td {
+  padding: var(--space-sm);
+  border-bottom: 1px solid var(--border);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+tr:hover td {
+  background: rgba(255, 106, 0, 0.03);
+}
+
+/* ===== Code Blocks ===== */
+pre {
+  background: #0a0a0a;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  overflow-x: auto;
+  margin-bottom: var(--space-lg);
+}
+
+pre code {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  font-size: inherit;
+}
+
+/* ===== Cards ===== */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
   padding: var(--space-md);
   transition: var(--transition);
 }
-.agent-card:hover { border-color: var(--accent); transform: translateY(-2px); }
-.agent-card h4 {
+
+.card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.card h3 {
   color: var(--accent);
+  font-family: var(--font-display);
   font-size: 1rem;
   margin-bottom: var(--space-xs);
 }
-.agent-card p {
-  font-size: 0.85rem;
-  color: var(--text-muted);
+
+.card p {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
   margin-bottom: var(--space-sm);
 }
-.agent-card code {
-  color: var(--text);
+
+.card code {
+  color: var(--text-primary);
+  font-family: var(--font-mono);
   font-size: 0.8rem;
   word-break: break-all;
 }
 
-/* Footer */
+/* ===== Prompt Boxes ===== */
+.prompt-box {
+  background: var(--surface);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-sm);
+  padding: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.prompt-box h4 {
+  color: var(--accent);
+  font-size: 0.9rem;
+  margin-bottom: var(--space-sm);
+}
+
+.prompt-box pre {
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+/* ===== Footer ===== */
 .site-footer {
   border-top: 1px solid var(--border);
   padding: var(--space-xl) 0;
@@ -412,15 +438,22 @@ pre code {
   text-align: center;
 }
 
-/* Mobile */
-@media (max-width: 768px) {
-  .bento-grid { grid-template-columns: 1fr; }
-  .bento-hero { grid-column: span 1; grid-row: auto; }
-  .nav-links { display: none; }
-  .container { padding: 0 var(--space-md); }
+.site-footer a {
+  color: var(--accent);
+  text-decoration: none;
 }
 
-/* Reduced motion */
+.site-footer a:hover {
+  text-decoration: underline;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .container { padding: 0 var(--space-md); }
+  .arch-step { grid-template-columns: 40px 1fr; }
+  .navbar-inner { padding: var(--space-sm) var(--space-md); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
@@ -429,28 +462,14 @@ pre code {
 <body>
 
 <a href="#content" class="skip-link">Skip to content</a>
-<div class="bg-mesh"></div>
 
-<header class="site-header">
-  <div class="hero-content">
-    <div class="hero-badges">
-      <span class="badge"><span class="dot"></span>PyPI</span>
-      <span class="badge"><span class="dot"></span>MIT</span>
-      <span class="badge"><span class="dot"></span>FFmpeg</span>
-      <span class="badge"><span class="dot"></span>Python 3.10+</span>
-    </div>
-    <h1>video-upscaler<span class="accent">-cli</span></h1>
-    <p class="tagline">Surgical video upscaling from 360p to 8K using precision FFmpeg filter pipelines — denoise → lanczos → unsharp → deband.</p>
-  </div>
-</header>
-
-<nav class="site-nav">
-  <div class="nav-inner">
+<nav class="navbar">
+  <div class="navbar-inner">
     <a href="#" class="nav-brand"><span class="dot"></span>video-upscaler-cli</a>
     <ul class="nav-links">
       <li><a href="#install">Install</a></li>
       <li><a href="#architecture">Architecture</a></li>
-      <li><a href="#cli">CLI</a></li>
+      <li><a href="#cli">CLI Reference</a></li>
       <li><a href="#python">Python API</a></li>
       <li><a href="#presets">Presets</a></li>
       <li><a href="#agents">AI Agents</a></li>
@@ -458,14 +477,22 @@ pre code {
   </div>
 </nav>
 
+<header class="hero">
+  <a href="https://pypi.org/project/video-upscaler-cli/" class="hero-badge" target="_blank" rel="noopener">
+    <span class="dot"></span>Available on PyPI
+  </a>
+  <h1>video-upscaler<span class="accent">-cli</span></h1>
+  <p>High-precision video upscaling CLI and Python library using FFmpeg filter pipelines. Transform video from 360p to 8K with denoise, lanczos scale, unsharp sharpen, and deband.</p>
+</header>
+
 <div class="container" id="content">
 
 <section class="section" id="install">
-  <div class="install-section">
+  <div class="install-panel">
     <h2>Installation</h2>
     <p>Install from PyPI and verify the CLI is available.</p>
-    <div class="install-code">pip install video-upscaler-cli</div>
-    <div class="install-code">video-upscale --help</div>
+    <div class="cmd-block">pip install video-upscaler-cli</div>
+    <div class="cmd-block">video-upscale --help</div>
   </div>
 </section>
 
@@ -527,28 +554,6 @@ pre code {
       </tbody>
     </table>
   </div>
-  <div class="cards-grid">
-    <div class="bento-card">
-      <h3>4K Upscale</h3>
-      <p>High quality 4K upscale with gentle denoising.</p>
-      <code>video-upscale input.mp4 -p 4k --quality high --denoise gentle</code>
-    </div>
-    <div class="bento-card">
-      <h3>8K Upscale</h3>
-      <p>8K upscale using fast quality to fit memory constraints.</p>
-      <code>video-upscale input.mp4 -p 8k --quality fast --denoise gentle</code>
-    </div>
-    <div class="bento-card">
-      <h3>Custom 2x Scale</h3>
-      <p>Scale video by 2x with padding fit strategy.</p>
-      <code>video-upscale input.mp4 --scale 2 --fit pad -o output.mp4</code>
-    </div>
-    <div class="bento-card">
-      <h3>DCI 4K</h3>
-      <p>DCI 4K resolution (4096×2160) with DCI flag.</p>
-      <code>video-upscale input.mp4 -p dci_4k --dci</code>
-    </div>
-  </div>
 </section>
 
 <section class="section" id="python">
@@ -591,31 +596,33 @@ print(result.duration)      # Duration in seconds</code></pre>
       </tbody>
     </table>
   </div>
-  <p style="color:var(--text-muted); font-size:0.9rem;"><strong>Note:</strong> 8K at <code>--quality high</code> may exceed memory on machines with &lt;16GB RAM. Use <code>--quality fast</code> for 8K.</p>
+  <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: var(--space-sm);">
+    <strong>Note:</strong> 8K at <code>--quality high</code> may exceed memory on machines with &lt;16GB RAM. Use <code>--quality fast</code> for 8K.
+  </p>
 </section>
 
 <section class="section" id="agents">
   <h2 class="section-title">AI Agent Guide</h2>
   <p class="section-subtitle">Works with Claude, Codex, Pi, Opencode, Kimi, and other AI coding agents.</p>
-  <div class="agent-grid">
-    <div class="agent-card">
-      <h4>Claude / Claude Code</h4>
-      <p>Use the Python API via direct import or subprocess. Ideal for scripting batch upscale jobs in agent workflows.</p>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-md);">
+    <div class="card">
+      <h3>Claude / Claude Code</h3>
+      <p>Use the Python API via direct import or subprocess for batch upscale jobs.</p>
       <code>from video_upscaler import Upscaler, UpscaleConfig, Preset</code>
     </div>
-    <div class="agent-card">
-      <h4>Codex</h4>
-      <p>Call the <code>video-upscale</code> CLI from generated scripts. Parse stdout for resolution and duration results.</p>
+    <div class="card">
+      <h3>Codex</h3>
+      <p>Call the <code>video-upscale</code> CLI from generated scripts.</p>
       <code>video-upscale input.mp4 -p 4k --quality high</code>
     </div>
-    <div class="agent-card">
-      <h4>Pi / Opencode</h4>
-      <p>Integrate into agentic pipelines. The Upscaler returns structured <code>UpscaleResult</code> with output_path, resolution, and duration.</p>
+    <div class="card">
+      <h3>Pi / Opencode</h3>
+      <p>Returns structured <code>UpscaleResult</code> with output_path, resolution, duration.</p>
       <code>result = upscaler.upscale(input, output)</code>
     </div>
-    <div class="agent-card">
-      <h4>Kimi / Other</h4>
-      <p>Use any LLM to generate Python or shell code that invokes the package. All types are standard library dataclasses and enums.</p>
+    <div class="card">
+      <h3>Kimi / Other</h3>
+      <p>All types are standard library dataclasses and enums.</p>
       <code>pip install video-upscaler-cli</code>
     </div>
   </div>
@@ -623,39 +630,38 @@ print(result.duration)      # Duration in seconds</code></pre>
 
 <section class="section">
   <h2 class="section-title">Agent Prompts</h2>
-  <p class="section-subtitle">Copy and paste these prompts into your AI agent to install and use <code>video-upscaler-cli</code> efficiently.</p>
-  <div class="cards-grid">
-    <div class="prompt-box">
-      <h4>Install the package</h4>
-      <pre><code>Install video-upscaler-cli from PyPI. Verify the installation by running `video-upscale --help` and confirm the CLI is available.</code></pre>
-    </div>
-    <div class="prompt-box">
-      <h4>Upscale a video to 4K</h4>
-      <pre><code>Use video-upscaler-cli to upscale "input.mp4" to 4K resolution with high quality and gentle denoising. Save the output as "output_4k.mp4". Report the output resolution and duration.</code></pre>
-    </div>
-    <div class="prompt-box">
-      <h4>Batch upscale multiple videos</h4>
-      <pre><code>Write a Python script using video_upscaler.Upscaler to batch upscale all MP4 files in a directory to 1080p with medium quality. Use FitStrategy.FIT and DenoiseLevel.GENTLE. Print each result's output_path, resolution, and duration.</code></pre>
-    </div>
-    <div class="prompt-box">
-      <h4>Upscale to 8K with memory constraints</h4>
-      <pre><code>Upscale "input.mp4" to 8K using video-upscaler-cli with --quality fast to fit within limited memory. Preserve the audio stream. Confirm the output resolution is 7680×4320.</code></pre>
-    </div>
-    <div class="prompt-box">
-      <h4>Check video info before upscaling</h4>
-      <pre><code>Use the video_upscaler.VideoProbe to probe "input.mp4" and report the width, height, codec, FPS, duration, and audio codec. Then recommend the best preset for upscaling.</code></pre>
-    </div>
-    <div class="prompt-box">
-      <h4>Custom 2x scale with padding</h4>
-      <pre><code>Use video-upscaler-cli to scale "input.mp4" by 2x with pad fit strategy. Output to "output_2x_padded.mp4". Enable debanding for smooth gradients.</code></pre>
-    </div>
+  <p class="section-subtitle">Copy and paste these prompts into your AI agent.</p>
+  <div class="prompt-box">
+    <h4>Install the package</h4>
+    <pre><code>Install video-upscaler-cli from PyPI. Verify with `video-upscale --help`.</code></pre>
+  </div>
+  <div class="prompt-box">
+    <h4>Upscale to 4K</h4>
+    <pre><code>Upscale "input.mp4" to 4K with high quality and gentle denoising. Save as "output_4k.mp4".</code></pre>
+  </div>
+  <div class="prompt-box">
+    <h4>Batch upscale videos</h4>
+    <pre><code>Use video_upscaler.Upscaler to batch upscale MP4s to 1080p with medium quality. Print each result's path, resolution, duration.</code></pre>
+  </div>
+  <div class="prompt-box">
+    <h4>8K with memory constraints</h4>
+    <pre><code>Upscale "input.mp4" to 8K with --quality fast. Preserve audio. Confirm 7680×4320.</code></pre>
+  </div>
+  <div class="prompt-box">
+    <h4>Check video info</h4>
+    <pre><code>Use video_upscaler.VideoProbe to probe "input.mp4". Report width, height, codec, FPS, duration, audio codec.</code></pre>
+  </div>
+  <div class="prompt-box">
+    <h4>Custom 2x scale with padding</h4>
+    <pre><code>Scale "input.mp4" by 2x with pad fit. Output to "output_2x_padded.mp4". Enable debanding.</code></pre>
   </div>
 </section>
 
 </div>
 
 <footer class="site-footer">
-  video-upscaler-cli · MIT License · <a href="https://github.com/Dream-Pixels-Forge/video-upscaler-cli" style="color: var(--accent); text-decoration: none;">GitHub Repository</a>
+  video-upscaler-cli · MIT License ·
+  <a href="https://github.com/Dream-Pixels-Forge/video-upscaler-cli" target="_blank" rel="noopener">GitHub Repository</a>
 </footer>
 
 </body>
